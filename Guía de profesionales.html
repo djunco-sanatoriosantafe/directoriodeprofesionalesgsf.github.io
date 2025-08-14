@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Profesionales - Sanatorio Santa Fe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; /* light gray */
+        }
+        .tab-button.active {
+            border-color: #4a5568; /* mid gray */
+            background-color: #e2e8f0; /* lighter gray */
+            font-weight: 600;
+            color: #2d3748; /* dark gray */
+        }
+        .service-tab {
+            background-color: #a0aec0; /* gray-400 */
+        }
+        .service-tab.active {
+            background-color: #4a5568; /* gray-600 */
+            border-color: #2d3748; /* gray-700 */
+            color: #ffffff;
+        }
+        #no-results-message, #search-results-container {
+            display: none;
+        }
+        .result-card {
+            border-left: 4px solid #718096; /* gray */
+        }
+        .specialty-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background-color: #f8fafc; /* Very light gray for the list background */
+        }
+        .specialty-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .specialty-title {
+            background-color: #e2e8f0; /* A darker gray for the title */
+            color: #2d3748;
+        }
+        .header-bg {
+            background-color: #2d3748; /* dark gray */
+        }
+        .logo-text-container {
+            text-align: right;
+            line-height: 1.1;
+        }
+        .logo-text-container .line1 {
+            font-size: 1.5rem; /* 24px */
+            font-weight: 800;
+        }
+        .logo-text-container .line2 {
+            font-size: 1.875rem; /* 30px */
+            font-weight: 800;
+            letter-spacing: -0.05em;
+        }
+        .info-box {
+            background-color: #f1f5f9; /* slate 100 */
+            border-left: 4px solid #64748b; /* slate 500 */
+        }
+        .info-box-text {
+            color: #334155; /* slate 700 */
+        }
+        .section-title {
+            color: #1e293b; /* slate 800 */
+        }
+        .table-header {
+            background-color: #475569; /* slate 600 */
+        }
+
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <!-- Header -->
+    <header class="header-bg text-white p-4 sm:p-6 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+             <div>
+                <h1 class="text-xl sm:text-3xl font-bold">Guía de Profesionales</h1>
+            </div>
+            <div class="logo-text-container">
+                <div class="line1">SANATORIO</div>
+                <div class="line2">SANTA FE</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 sm:p-6">
+
+        <!-- Search Bar -->
+        <div class="mb-6 relative">
+            <input type="text" id="search-input" placeholder="Buscar profesional por nombre..." class="w-full p-3 pl-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition">
+            <svg class="w-6 h-6 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+
+        <!-- Search Results Container -->
+        <div id="search-results-container" class="mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">Resultados de la Búsqueda</h2>
+            <div id="search-results" class="space-y-3"></div>
+        </div>
+        <div id="no-results-message" class="text-center p-6 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-lg">
+            No se encontraron profesionales con ese nombre.
+        </div>
+
+        <!-- Tabs Container -->
+        <div id="tabs-container-wrapper" class="mb-6">
+             <h2 class="text-2xl font-bold mb-4 text-gray-700">Nuestras Sedes y Servicios</h2>
+            <div id="tabs-container" class="flex flex-wrap border-b border-gray-200">
+                <!-- Tabs will be injected here -->
+            </div>
+        </div>
+
+        <!-- Content Display Area -->
+        <div id="content-container" class="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <!-- Content will be injected here -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-8 py-4">
+        <div class="container mx-auto text-center text-sm">
+            <p>&copy; 2025 Sanatorio Santa Fe. Todos los derechos reservados.</p>
+            <p>Información actualizada a la fecha. Sujeta a modificaciones.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // --- DATA ---
+        // This object holds all the professional data, structured by location/service.
+        const professionalData = {
+            "Centro Médico Santa Fe (CMS)": {
+                info: {
+                    "Dirección": "Belgrano 3003",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Del Pazo Sebastián", "Del Pazo Teresita", "Giménez Roberto", "López Eduardo", "Paulazzo Marina"],
+                    "Ginecología y Obstetricia": ["Caussa Claudio", "Ulla Bernardo", "Mai Eduardo", "Mascotti Cleber", "Oitana Héctor"],
+                    "Otorrinolaringología": ["Begino Patricia", "Quagliotti Matías"],
+                    "Urología": ["Gorla Andrés", "López Saco Alberto", "Agudo Franco Juan Manuel", "Rodríguez Strada Nicolás"],
+                    "Urodinamias": ["Gorla Juan Pablo"],
+                    "Cirugía General": ["Nicolás Camuzzi Emilio Sebastián", "Straini Pedro"],
+                    "Cirugía de Cabeza y Cuello": ["Delponte Federico", "Lieutier Rosendo"],
+                    "Cardiología": ["Ciro Eduardo", "Urquiza Raúl"],
+                    "Flebología": ["Loson María Victoria"],
+                    "Reumatología": ["Borgia Ariel"],
+                    "Dermatología": ["Cuello Cristina", "Salva Mario", "Salva María Lucrecia"],
+                    "Traumatología": ["Gamboz Alfredo"],
+                    "Cirugía Vascular-Periférica": ["Masino Martín"],
+                    "Odontología": ["Esquivel Federico", "Man Lorena"]
+                }
+            },
+            "Especialidades Pediátricas": {
+                info: {
+                    "Dirección": "Belgrano 3033",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Pediatría": ["Asen Roberto", "Basqueseaux Juan", "Cavallieri María Fiorella", "Cohen Analía", "Díaz Rocío", "Funes Josefina", "Funes Sebastián", "Gamboa Aldana", "Martínez María Eugenia", "Molina Fabiana", "Monasterolo Victoria", "Pacitti María Eugenia", "Pretini Guillermo", "Strada María Victoria", "Villanueva Jesica", "Zamaro Andrea"],
+                    "Cardiología Pediátrica": ["Citroni María Paula", "Pastore Enzo", "Pastore María Constanza"],
+                    "Urología Pediátrica": ["Buniva César"],
+                    "Terapia Ocupacional": ["Cobelli Lucía"],
+                    "Infectología Pediátrica": ["Romagnoli Antonela"],
+                    "Psicopedagogía": ["Abba Melina"],
+                    "Cirugía Pediátrica": ["Ciro Guillermo", "Comba Gabriel", "Mendoza María Dolores"],
+                    "Nefrología Pediátrica": ["Marega Andrés"],
+                    "Traumatología Pediátrica": ["Gauna Piccinelli Diego", "Lafuente Andrés", "Rodríguez Hernán"],
+                    "Fisiokinesioterapia": ["Mandola Sofía"],
+                    "Fonoaudiología": ["Gandolfo Silvia (Otoemisiones Acústicas)", "Saad Yamile (Rehabilitación del Lenguaje)"],
+                    "Neurología Pediátrica": ["Voyame María Sol"],
+                    "Neumonología Pediátrica": ["D'Jorge Paula"],
+                    "Psicología Pediátrica": ["Astore Yamila"],
+                    "Gastroenterología Pediátrica": ["Eichhorn Cristina"],
+                    "Psiquiatría Pediátrica": ["Barrera Angelina"],
+                    "Dermatología Pediátrica": ["Ordano Georgina"],
+                    "Nutrición": ["Borga Virginia"]
+                }
+            },
+            "Especialidades Médicas": {
+                info: { 
+                    "Dirección": "Belgrano 3071 P.B.",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Anestesia": ["Staff de profesionales"],
+                    "Nutrición y Soporte Nutricional": ["Astegiano Paulina"],
+                    "Cardiología": ["Ciro Eduardo", "Colombo Marianela", "Croce Daniel", "Diderle Juan", "Di Mattia Sofía", "Doyharzabal Juan Manuel", "Esquivel Alejandro", "Gaggiamo Pablo", "García Mauro", "Gómez Luisina", "González Mauro", "Huber Lucrecia", "Ledesma Ignacio", "Reyes Luis", "Savarino Roberto", "Scheggia Fernando", "Schmuck Raúl", "Stratta Roberto", "Viñuela Fernando"],
+                    "Holter y MAPA": ["Di Mattia Sofía", "González Mauro", "Ledesma Ignacio", "Scheggia Fernando", "Viñuela Fernando"],
+                    "Ecodoppler Cardíaco": ["Arri María Luz", "Citroni Paula", "Esquivel Alejandro", "Kindweiler Federico", "Ledesma José Ignacio", "Reyes Luis", "Savarino Roberto"],
+                    "Ergometría": ["Aguilar María Sol", "Colombo Marianela", "Di Mattia Sofía", "Gaggiamo Pablo", "García Mauro", "Gómez Luisina", "González Mauro", "Huber Lucrecia", "Ledesma José Ignacio", "Viñuela Fernando"],
+                    "Tilt Test": ["Colombo Marianela", "Stratta Roberto"],
+                    "Cirugía General": ["Bonsembiante Nicolás", "Brosutti Oscar", "Díaz Rodrigo", "Modini Alfredo", "Straini Pedro"],
+                    "Gastroenterología": ["Barbaglia Yanina", "Chaparro María Victoria", "Hanuch Natali", "Juárez Luciana", "Meuli Guzmán Federico", "Salvatierra Emiliano"],
+                    "Flebología": ["Padilla Juan Francisco"],
+                    "Cirugía Vascular": ["Padilla Juan Francisco"],
+                    "Clínica Médica": ["Córdoba Germán", "Díaz Parodi Germán", "Duarte María Lucía", "Gozálbez Agustina", "Lanza Luis", "Santiago Mauricio", "Ottolina Fátima", "Soria Damián", "Taibo Sofía", "Tibalt Rodrigo", "Ramírez Gisela"],
+                    "Infectología": ["Alarcón María Julia", "Gómez María Georgina", "Masetto Marisol", "Ottonelli Mariano"],
+                    "Nefrología": ["Armando María Rocío", "Agusti Joaquín"],
+                    "Neumonología": ["Rossi Ríos Victoria"],
+                    "Urología": ["Agudo Juan", "Cedeira Francisco", "Gorla Juan", "Rodríguez Strada Nicolás"],
+                    "Cirugía Torácica": ["Monzón Osuna Juan", "Gianonne Pilar"],
+                    "Cirugía Cardiovascular": ["Kalbermatten Marcos"],
+                    "Arritmias": ["Leandro Tomás", "Vignatti Agustín"]
+                }
+            },
+            "Especialidades de la Mujer": {
+                info: { 
+                    "Dirección": "Belgrano 3071 1° piso",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Obstetricia de Alto y Bajo Riesgo": ["Adrover Jésica", "Borgarello María Florencia", "Barlatey Javier", "Bruna Juan", "Bustos Mariano", "Carthery María Cecilia", "Ceballos Marcela", "Chianalino Viviana", "Cornaglia Samira", "Cuenca Milagros", "Demiryi Laura", "Fowler Marcela", "Lavooy Lucas", "Martínez María Laura", "Oitana Héctor", "Ulla Bernardo", "Vanzetti Ayelén", "Viale Yanina"],
+                    "Mastología": ["Mai Eduardo", "Massera Jésica"],
+                    "Cirugía Plástica": ["Acevedo Rodrigo", "Capoccetti María Jimena", "Sastre Gonzalo"],
+                    "Asistencia Preparto": ["Staff de Profesionales de Ginecología y Obstetricia"],
+                    "Atención Perinatal": ["Staff de Profesionales de Neonatología y Pediatría"],
+                    "Oncología Pelviana": ["Lay Laura", "Portillo Pablo"],
+                    "Psicología Perinatal y Puericultura": ["Martín Lorena"],
+                    "Medicina Reproductiva": ["Degani Mariana"],
+                    "Endocrinología": ["Ocampo María Victoria"],
+                    "Menopausia y Climaterio": ["Mascotti Cleber"],
+                    "Diabetología Gestacional": ["Peirano Luciana"],
+                    "Nutrición": ["Acosta Indiana (Endometriosis)", "Bacarella Florencia (Embarazo y menopausia)"],
+                    "Sexología": ["Carthery María Cecilia"],
+                    "Ginecología Regenerativa y Estética": ["Lavooy Lucas", "Portillo Pablo"],
+                    "Piso Pelviano": ["Giobando Pilar"],
+                    "Patología Cervical": ["Borgarello María Florencia", "Caussa Claudio", "Cornaglia Samira"],
+                    "Videolaparoscopía": ["Demiryi Laura", "Lavooy Lucas", "Portillo Pablo"],
+                    "Ecografía": ["Staff de profesionales"]
+                }
+            },
+            "Neurociencias y Salud Mental": {
+                info: {
+                    "Dirección": "Suipacha 2241",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Neurología": ["Bocchiardo Carolina", "Eberbach Federico", "Etulain Soledad", "Falco Natalia", "Krenz María de los Ángeles", "Rico María Florencia", "Tarelli Lía", "Varela Francisco"],
+                    "Psicología": ["Ramos Fernando", "Bonaventura Nadia"],
+                    "Neurocirugía": ["Guala Alejandro Luis", "Lovey Dante", "Vera Lucas"],
+                    "Electroencefalograma": ["Falco Natalia", "Krenz María de los Ángeles", "Rico María Florencia"],
+                    "Videonistagmografías": ["Etulain Soledad"],
+                    "Tratamiento del Dolor": ["Calvet Sebastián", "Benítez Romina", "Tomassini María Belén"],
+                    "Rehabilitación Vestibular": ["Díaz Parodi Agustín", "Giles Romina"],
+                    "Psiquiatría": ["Fleitas Sergio", "Paz María Dolores"],
+                    "Test Neurocognitivo": ["Ferrando Lucía", "Mordini Julieta"],
+                    "Traumatología - Esp. en Columna": ["Martínez Augusto"],
+                    "Lic. en Familia": ["Divi María Laura"],
+                    "Electromiografías": ["Mackinnon Federico"],
+                    "Enfermedades Neuromusculares": ["Mackinnon Federico"],
+                    "Rehabilitación y Estimulación Neurocognitiva": ["Flamini Cecilia", "Mordini Julieta"]
+                }
+            },
+            "SEMO": {
+                info: {
+                    "Dirección": "Belgrano 3003",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Diabetes": ["Lisa Victoria", "Martínez Esteban", "Pairetti Juan Manuel", "Peirano Luciana", "Saleme Antonio"],
+                    "Endocrinología": ["Degrave Aldana", "Gentinetta Gisela", "Ocampo María Victoria", "Pérez Magni Verónica", "Puma Salinas Mariela", "Saleme Antonio"],
+                    "Nefrología": ["Agusti Joaquín"],
+                    "Balón Gástrico": ["Meuli Guzmán Carlos Federico"],
+                    "Cirugía Bariátrica": ["Díaz Rodrigo", "Ruiz Guillermo"],
+                    "Nutrición": ["Lic. Borga María Virginia", "Lic. Mateo María de los Milagros", "Lic. Schneider Ingrid"],
+                    "Programa de Obesidad": ["Lisa Victoria", "Martínez Esteban", "Saleme Antonio", "Pairetti Juan Manuel", "Lic. Segovia Jimena", "Lic. Borga María Virginia", "Lic. Mateo María de los Milagros", "Lic. Schneider Ingrid"]
+                }
+            },
+            "Sede Candioti": {
+                 info: {
+                    "Dirección": "Güemes 4297",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Santiago Mauricio", "Paolantonio Jorge", "Tibalt Rodrigo", "Masetto Marisol"],
+                    "Clínica Médica y Soporte Nutricional": ["Vaca Cardozo Cristina"],
+                    "Nutrición": ["Elli María Guillermina"],
+                    "Traumatología y Ortopedia": ["Serpentiello Pablo", "Zanuttini Nicolás"],
+                    "Ginecología y Obstetricia": ["Cuenca Milagros", "Demiryi María Laura", "Massera Jésica"],
+                    "Urología": ["Gorla Juan Pablo"],
+                    "Gastroenterología y Hepatología": ["Hanuch Natalí"],
+                    "Cardiología": ["Ledesma José I", "Ciro Eduardo"],
+                    "Pediatría": ["Zabaljáuregui Analía", "Villanueva Jésica"],
+                    "Flebología": ["Yermanos Yunez Omar"],
+                    "Neumonología": ["Rossi Ríos Victoria"],
+                    "Alergia": ["Fernández Liliana"],
+                    "Psicología": ["Orioli Camila"],
+                    "Programa de Obesidad (IAPOS)": ["Martínez Esteban", "Pairetti Juan Manuel", "Lic. Schneider Ingrid", "Lic. Segovia Jimena", "Lic. Orioli Camila", "Lic. Mateo María de los Milagros"],
+                    "Laboratorio de Análisis Clínicos": ["Staff de Bioquímicos"]
+                }
+            },
+            "Sede General Paz I": {
+                 info: {
+                    "Dirección": "General Paz 5836",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Gozálbez Agustina", "Paolantonio Jorge", "Taibo Sofía", "Salerni Natalia"],
+                    "Clínica Médica y Soporte Nutricional": ["Vaca Cardozo Cristina"],
+                    "Clínica Médica y Medicina Deportiva": ["Rico Julio"],
+                    "Cardiología": ["Arri María Luz", "Croce Daniel", "Schmuck Raúl", "Gaggiamo Pablo", "García Carlos", "González Mauro", "Ledesma José I"],
+                    "Ginecología y Obstetricia": ["Adrover Jésica", "Caussa Claudio", "Cornaglia Samira", "Martínez María Laura"],
+                    "Dermatología": ["Salva Mario José"],
+                    "Nutrición": ["Elli María Guillermina"],
+                    "Urología": ["Cedeira Francisco"],
+                    "Flebología": ["Prigioni Vanesa"],
+                    "Endocrinología": ["Giacchi Cecilia"],
+                    "Mastología": ["Massera Jésica"],
+                    "Neumonología": ["Larivey Virginia"],
+                    "Adolescencia": ["Ballarini María Sol (Pediatra)"],
+                    "Pediatría": ["Funes Josefina", "Monasterolo Victoria", "Zabaljáuregui Analía"],
+                    "Dermatología Infantil": ["Ordano María Georgina"],
+                    "Psicología Infantil": ["Astore Yamila"],
+                    "Psicología": ["Bonaventura Nadia"],
+                    "Psiquiatría": ["Alassia Ignacio"],
+                    "Psicopedagogía": ["Abba Melina"],
+                    "Neurología": ["Rico María Florencia"],
+                    "Gastroenterología Infantil": ["Eichhorn Cristina"],
+                    "Traumatología y Ortopedia": ["Agostinelli Fernando", "Mercier Fernando"],
+                    "Ecografía y Ecodoppler": ["Bertero Gabriel", "Ledesma José Ignacio"],
+                    "Ecografía Mamaria": ["Martínez María Laura"],
+                    "Holter, MAPA y Ergometrías": ["Gaggiamo Pablo", "Ledesma José Ignacio", "Neme María"],
+                    "Laboratorio de Análisis Clínicos": ["Staff de Bioquímicos"]
+                }
+            },
+            "Sede General Paz II": {
+                 info: {
+                    "Dirección": "General Paz 5239",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Coronel Betina", "Candioti Busaniche Matías"],
+                    "Psiquiatría": ["Pigatto María Sol"],
+                    "Pediatría": ["Flores Montanaro María Laura", "Eberbach Víctor", "Pesce Gabriela"],
+                    "Cardiología": ["Quarchioni Esteban"],
+                    "Ginecología": ["Ocampo María Gabriela"],
+                    "Dermatología": ["Valli Eugenia"],
+                    "Flebología": ["Barukel Daniel"],
+                    "Fisiokinesioterapia": ["Marengo Fernanda", "Bordogna Rodrigo"],
+                    "Odontología": ["Romero Cecilia", "Zarabia Verónica"],
+                    "Psicología": ["Rostagno Estefanía", "Rucci Daniela"]
+                }
+            },
+            "Sede Recoleta COT": {
+                info: { 
+                    "Dirección": "San Martín 3169",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Traumatología y Ortopedia": ["Colli Arturo", "Dalla Fontana Agustín", "Fretes Pablo", "Gallotto Miguel Luciano", "Gauna Piccinelli Diego", "Gautero Leandro", "Lanza Rodrigo", "Martínez Augusto", "Reinares Federico", "Restaldi Ignacio", "Torterola Iván", "Serpentiello Pablo", "Vega Francisco"],
+                    "Medicina del Deporte": ["Trossero Pablo", "Antille María Emilia", "Giménez Camila"],
+                    "Kinesiología y Gimnasia Terapéutica": ["Coord. General: Lic. Enjuto Alejandro", "Olivera Hernán", "Gómez Iriondo María del Rosario", "Dolfo Cristóbal", "Madoery Juan Manuel", "Gandolla Carlos", "Escanes Juan", "Mesquida María Soledad", "Sattler Florencia", "Schneider Irene", "Rey Luisina", "Oviedo Daniel", "Benítez Micaela"],
+                    "Clínica Médica": ["Pace María Jesús"],
+                    "Reumatología": ["Gontero Romina", "Riera Julia"],
+                    "Terapia Ocupacional": ["Azagra María (Neurorehabilitación)", "Giuseppucci María Julia (Miembro superior)"],
+                    "Neumonología": ["Gonzalo Paula"],
+                    "Enfermedad Pulmonar Intersticial": ["Gonzalo Paula", "Riera Julia"],
+                    "Cardiología": ["Berli Mario Alberto", "Gómez Luisina", "Scheggia Fernando"],
+                    "Ecografía y Ecodoppler": ["Cometto Angelina"],
+                    "Ecodoppler Cardíaco": ["Arri María Luz", "Berli Mario", "Ledesma José I", "Vignatti Agustín"],
+                    "Servicio de Radiología Digital": ["Téc. Rocío Cabrera"]
+                }
+            },
+            "Sede Sur": {
+                info: {
+                    "Dirección": "Uruguay 2704",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Agustini Aldana", "Del Pazo Sebastián", "Duarte Lucía", "Tomasini María Belén"],
+                    "Cardiología": ["Croce Daniel", "Di Mattia Sofía", "Viñuela Fernando"],
+                    "Cirugía General": ["Nicolás Camuzzi Sebastián"],
+                    "Dermatología": ["Salva José"],
+                    "Psicopedagogía Infantil": ["Abba Melina"],
+                    "Fonoaudiología Infantil": ["Saad Yamile"],
+                    "Endocrinología": ["Ocampo María Victoria"],
+                    "Ginecología y Obstetricia": ["Mascotti Cleber", "Vanzetti Ayelén"],
+                    "Gastroenterología": ["Chaparro Victoria"],
+                    "Nutrición": ["Daj Daro Jaqueline"],
+                    "Medicina del Deporte": ["Rico Julio"],
+                    "Psicología": ["Buzano María del Rosario", "Cerestia Lostalo Paula", "Martín Lorena"],
+                    "Psicología Infantil": ["Martín Lorena"],
+                    "Traumatología": ["Gautero Leandro", "Zanuttini Nicolás"],
+                    "Urología": ["Rodríguez Strada Nicolás"],
+                    "Pediatría": ["Martínez María Eugenia"],
+                    "Podología": ["Peralta Sofía Salomé"],
+                    "Neurocirugía": ["Del Sastre José"],
+                    "Reumatología": ["Zunino Luisina"]
+                }
+            },
+            "Sede Santo Tomé": {
+                info: {
+                    "Dirección": "25 de Mayo 2028",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Guglielmone Gonzalo", "Lanza Luis", "Pizzi Paula", "Soria Damián"],
+                    "Cardiología": ["Gaggiamo Pablo", "García Mauro", "Ledesma José Ignacio", "Scheggia Fernando"],
+                    "Cirugía General": ["Díaz Rodrigo", "Modini Alfredo", "Barengo Raúl"],
+                    "Dermatología": ["Salva María Lucrecia"],
+                    "Diabetología": ["Peirano Luciana"],
+                    "Alergia": ["Barbieri Marcela"],
+                    "Rehabilitación Vestibular": ["Díaz Parodi Agustín"],
+                    "Endocrinología": ["Pérez Magni Verónica"],
+                    "Flebología": ["Prigioni Vanesa"],
+                    "Fonoaudiología": ["Serassio Valeria"],
+                    "Gastroenterología": ["Dellavia Ricardo"],
+                    "Ginecología y Obstetricia": ["Caussa Claudio", "Ceballos Marcela", "Cornaglia Samira", "Fowler Marcela", "Mascotti Cleber", "Viale Yanina"],
+                    "Kinesiología y Gimnasia Terapéutica": ["Coord. General: Lic. Enjuto Alejandro"],
+                    "Medicina Laboral": ["Luna Ariel", "Combetto Carolina", "Mendoza María Emilce"],
+                    "Oncología": ["Fontana Rubén Agustín"],
+                    "Neumonología": ["Pujato Andrés"],
+                    "Neurología": ["Etulain María Soledad"],
+                    "Nutrición": ["Daj Daro Jaqueline"],
+                    "Otorrinolaringología": ["Quagliotti Matías"],
+                    "Psicología": ["Buzano María del Rosario", "Carestia Lostalo María Paula"],
+                    "Traumatología": ["De Azcuénaga Martín", "Gallotto Luciano", "Restaldi Ignacio", "Vega Francisco", "Zanuttini Nicolás"],
+                    "Urología": ["Agudo Juan", "Gorla Andrés", "Rodríguez Strada Nicolás"],
+                    "Pediatría": ["Ballarini María Sol", "Bruno Raquel", "Malachevsky María Elena", "Martínez María Eugenia", "Raviolo Valentina"],
+                    "Alergia Infantil y Pediatría": ["Barbieri Marcela"],
+                    "Cirugía Infantil": ["Mendoza María Dolores"],
+                    "Dermatología Infantil": ["Ordano María Georgina"],
+                    "Psicología Infantil": ["Astore Yamila"],
+                    "Ecografía y Ecodoppler": ["García Mauro", "Ledesma José Ignacio", "Visentin María de los Ángeles"],
+                    "Ecografía Mamaria": ["Visentin María de los Ángeles"],
+                    "Ergometrías, Holter y MAPA": ["Staff de Técnicos"],
+                    "Laboratorio de Análisis Clínicos": ["Staff de Bioquímicos"],
+                    "Radiología Digital": ["Staff de Técnicos"]
+                }
+            },
+            "Sede Esperanza": {
+                info: {
+                    "Dirección": "Crespo 1844",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Alergia": ["Zilli Paulina"],
+                    "Alergia Infantil": ["Barbieri Marcela"],
+                    "Clínica Médica": ["Díaz Parodi Germán", "Schneider Noelia", "Shmidt Gilda", "Zilli Paulina"],
+                    "Cardiología": ["García Mauro", "Aguilar María Sol", "Arri Luz"],
+                    "Cirugía Vascular-Periférica": ["Masino Martín"],
+                    "Cirugía General": ["García Maximiliano"],
+                    "Dermatología": ["Valli Eugenia"],
+                    "Kinesiología y Gimnasia Terapéutica": ["Coord. General: Lic. Enjuto Alejandro"],
+                    "Endocrinología": ["Gentinetta Gisela", "Ocampo Victoria"],
+                    "Gastroenterología": ["Dellavia Ricardo", "Juárez Luciana"],
+                    "Cirugía Plástica y Reparadora": ["Sastre Gonzalo"],
+                    "Diabetología": ["Martínez Esteban"],
+                    "Flebología": ["Yermanos Yunes Omar", "Masino Martín"],
+                    "Ginecología y Obstetricia": ["Barengo Noelia", "Barlatey Javier", "Caussa Claudio", "Carthery María Cecilia"],
+                    "Neumonología": ["Rossi Ríos Victoria"],
+                    "Neurología": ["Falco Omar"],
+                    "Medicina Laboral": ["Tschaggeny Eliana (Med. Laboral)", "Pianetti Guillermina (Fonoaudiología)", "Assenza Federico (Psicología)"],
+                    "Nutrición": ["Daj Daro Jaqueline"],
+                    "Cirugía de Cabeza y Cuello": ["Delponte Federico"],
+                    "Psicología": ["Gemin César"],
+                    "Traumatología": ["Agostinelli Fernando", "Mercier Fernando", "Perret Nicolás", "Zanuttini Nicolás"],
+                    "Reumatología": ["Calvo Romina"],
+                    "Urología": ["Cedeira Francisco"],
+                    "Pediatría": ["Asen Roberto", "Barbieri Marcela", "Basqueseaux Juan", "Falco Omar"],
+                    "Gastroenterología Infantil": ["Eichhorn Cristina"],
+                    "Cirugía Infantil": ["Comba Gabriel"],
+                    "Fonoaudiología": ["Fontana Fiorela"],
+                    "Radiología": ["Téc. Imhoff Francisco"],
+                    "Laboratorio": ["Bioq. Monti Celeste"],
+                    "Ecografías y Ecodoppler": ["Lagraba Florencia", "Zalazar Gonzalo"],
+                    "Ecodoppler Cardíaco": ["Arri María Luz", "García Mauro"],
+                    "Ergometría": ["Aguilar María Sol"],
+                    "Videocolposcopías": ["Carthery María Cecilia"]
+                }
+            },
+            "Sede San Justo": {
+                info: {
+                    "Dirección": "San Martín 2847",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Colombo María Betina", "Vega Cintia"],
+                    "Cardiología": ["Heumann Germán", "Zalazar Carina"],
+                    "Flebología": ["Lanza Drucila"],
+                    "Fonoaudiología": ["Mazzon Priscila"],
+                    "Endocrinología": ["Ocampo María Virginia"],
+                    "Nefrología": ["Ávila Hernán"],
+                    "Neumonología": ["Vegetti Luciana"],
+                    "Oncología": ["Fontana Rubén"],
+                    "Ginecología": ["Homilka María Carolina"],
+                    "Diabetología": ["Onyszczyk Roselina"],
+                    "Oftalmología": ["Botta Javier"],
+                    "Otorrinolaringología": ["Travesani Iris"],
+                    "Pediatría": ["Ageno María Andrea", "Bueno Eduardo", "Zanuttig Julieta"],
+                    "Psicología": ["Strottmann Virginia", "Mazzon Florencia", "Sánchez María Luz", "Sabione Julieta", "Álvarez Corina"],
+                    "Nutrición Infantil": ["García Luz Coral"],
+                    "Traumatología": ["Lanza Rodrigo"],
+                    "Urología": ["Dalul José Ignacio"],
+                    "Urología Infantil": ["Nievas Hugo"],
+                    "Psicopedagogía": ["Padoan Guillermina"],
+                    "Terapia Ocupacional": ["Monzón Marianela", "Racca Andrea"],
+                    "Psiquiatría": ["Lamboglia Ivana"],
+                    "Acompañante Terapéutico": ["Morelli Virginia", "Pedrazzoli Lucía"],
+                    "Kinesiología": ["Cozzi Alfredo", "Mondino Claudia"],
+                    "Odontología": ["Lazzaroni Carina"],
+                    "Radiología": ["Sánchez Diego"],
+                    "Laboratorio": ["Bodrone Romina", "Chiana Daiana"],
+                    "Ecografías y Ecodoppler": ["Díaz Juan Carlos", "Bertero Gabriel"]
+                }
+            },
+            "Sede Vera": {
+                info: {
+                    "Dirección": "Corrientes 1770",
+                    "Whatsapp Turnos": "342-4853244"
+                },
+                specialties: {
+                    "Clínica Médica": ["Aguirre Miguel", "Bermúdez José", "Cortez Carlos", "Chediac Eduardo", "Luque Guillermo", "Odazzo Gustavo"],
+                    "Cardiología": ["Bernardi Carlos Germán"],
+                    "Cosmiatría y Cosmetología": ["Buyatti Abril"],
+                    "Flebología": ["Fiorenza Carlos Alberto"],
+                    "Medicina Generalista y de Familia": ["Pujol Verónica Alejandra"],
+                    "Neumonólogo": ["Fadul Héctor", "González Sergio"],
+                    "Ginecología": ["Barbieri Sandra", "Farah Jorge", "Wagner Camila"],
+                    "Oftalmología": ["Agustini Ernesto", "Burgués Juan"],
+                    "Cirugía": ["Buyatti Eduardo Alcides", "Serrano Juan Pablo", "Zunini Darío"],
+                    "Diabetología": ["Martínez Krenz Esteban"],
+                    "Gastroenterología": ["Thomas Viviana"],
+                    "Traumatología y Ortopedia": ["Pretto Luisina Guadalupe", "Zanuttini Nicolás (sólo en Romang)"],
+                    "Radiología": ["Larrea Fernando"],
+                    "Laboratorio": ["Femia Dulce", "Radosevick Liliana"],
+                    "Kinesiología": ["Martínez Diana"],
+                    "Ecografía": ["Barbieri Sandra", "Laplace Mónica Isabel", "Zunini Darío"]
+                }
+            },
+            "Diagnóstico por Imágenes": {
+                isService: true,
+                content: `
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-2xl font-bold section-title mb-4">Profesionales del Servicio Central</h3>
+                            <div class="mb-4 p-4 info-box rounded-r-lg">
+                                <p class="info-box-text"><strong>Dirección:</strong> Belgrano 3049 / Suipacha 2251</p>
+                                <p class="info-box-text"><strong>Horarios:</strong> Lunes a Viernes 08 a 21 hs / Sábados 08 a 21 hs</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Densitometría Ósea</h4><ul class="p-3 space-y-2 text-gray-600"><li>Deoseffe Fernanda</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Ecografía y Doppler</h4><ul class="p-3 space-y-2 text-gray-600"><li>Bertero Gabriel</li><li>Silveyra María Paz</li><li>Cometto Angelina</li><li>Deosefe Fernanda</li><li>Falco Eloisa</li><li>Infante Ignacio</li><li>Lagraba Florencia</li><li>Martínez María Laura</li><li>Paz de la Torre Silvina</li><li>Visentin María Ángeles</li><li>Zalazar Gonzalo</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Ecodoppler Cardíaco</h4><ul class="p-3 space-y-2 text-gray-600"><li>Arri María Luz</li><li>Berli Mario</li><li>Citroni María Paula</li><li>Esquivel Alejandro</li><li>García Mauro</li><li>Kindweiler Federico</li><li>Ledesma Ignacio</li><li>Reyes Luis</li><li>Savarino Roberto</li><li>Vignatti Agustín</li><li>Viñuela Fernando</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Medicina Nuclear</h4><ul class="p-3 space-y-2 text-gray-600"><li>Minem Oscar</li><li>Silveyra María Paz</li><li>Viñuela Fernando</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Videoendoscopía</h4><ul class="p-3 space-y-2 text-gray-600"><li>Barbaglia Yanina</li><li>Dellavia Ricardo</li><li>Fleischer Esteban</li><li>Hanuch Natalí</li><li>Juárez Luciana</li><li>Mattarana Gabriel</li><li>Meuli Federico</li><li>Salvatierra Emiliano</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Tomografía</h4><ul class="p-3 space-y-2 text-gray-600"><li>Falco Eloisa</li><li>Sacc Pablo</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Resonancia Magnética</h4><ul class="p-3 space-y-2 text-gray-600"><li>Cometto Angelina</li><li>Esquivel Alejandro</li><li>Falco Eloisa</li><li>Infante Ignacio</li><li>Páez de la Torre Silvina</li><li>Varizat Alejandro</li><li>Ximena Elena</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Intervencionismo</h4><ul class="p-3 space-y-2 text-gray-600"><li>Bertero Gabriel</li><li>Cometto Angelina</li><li>Díaz Rodrigo</li></ul></div>
+                                <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm"><h4 class="specialty-title text-lg font-semibold p-3">Radiología Digital</h4><ul class="p-3 space-y-2 text-gray-600"><li>Staff de Técnicos</li></ul></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold section-title mb-4">Servicios Disponibles en Otras Sedes</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white rounded-lg shadow">
+                                    <thead class="table-header text-white">
+                                        <tr>
+                                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Sede</th>
+                                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Servicios Disponibles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-gray-700">
+                                        <tr class="border-b"><td class="py-3 px-4 font-medium">Sede Recoleta COT</td><td class="py-3 px-4">Ecografías y Ecodopplers cardíacos, Radiografía Digital.</td></tr>
+                                        <tr class="border-b bg-gray-100"><td class="py-3 px-4 font-medium">Sede Santo Tomé</td><td class="py-3 px-4">Ecografías y Ecodopplers cardíacos, Ecografías Mamarias, Radiografías Digital.</td></tr>
+                                        <tr class="border-b"><td class="py-3 px-4 font-medium">Sede Esperanza</td><td class="py-3 px-4">Ecografías y Ecodopplers cardíacos, Radiografía Digital.</td></tr>
+                                        <tr class="bg-gray-100"><td class="py-3 px-4 font-medium">Sede General Paz I</td><td class="py-3 px-4">Ecografías y Ecodopplers, Ecografías Mamarias.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            "Laboratorio": {
+                isService: true,
+                content: `
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg shadow">
+                            <thead class="table-header text-white">
+                                <tr>
+                                    <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Sede</th>
+                                    <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Dirección</th>
+                                    <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Horario</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-700">
+                                <tr class="border-b"><td class="py-3 px-4">Sede Central</td><td class="py-3 px-4">Belgrano 3071 2º Piso</td><td class="py-3 px-4">Extracción: Lunes a Viernes 6:30-11 / Sábados 8-9. Secretaría: Lunes a Viernes 6:30-20 / Sábados 7-12.</td></tr>
+                                <tr class="border-b bg-gray-100"><td class="py-3 px-4">Sede General Paz I</td><td class="py-3 px-4">General Paz 5863</td><td class="py-3 px-4">Lunes a Viernes: Extracción 7-10 / Secretaría 7-11.</td></tr>
+                                <tr class="border-b"><td class="py-3 px-4">Sede CMS</td><td class="py-3 px-4">Belgrano 3003</td><td class="py-3 px-4">Lunes a Viernes: Extracción 7-10:30 / Secretaría 7-10:30.</td></tr>
+                                <tr class="border-b bg-gray-100"><td class="py-3 px-4">Sede Santo Tomé</td><td class="py-3 px-4">25 de Mayo 2028</td><td class="py-3 px-4">Lunes a Viernes: Extracción 7-9:30 / Secretaría 7-12.</td></tr>
+                                <tr class="border-b"><td class="py-3 px-4">Sede San Justo</td><td class="py-3 px-4">San Martín 2847</td><td class="py-3 px-4">Lunes a Viernes: 7-12 y 16-20.</td></tr>
+                                <tr class="bg-gray-100"><td class="py-3 px-4">Sede Vera</td><td class="py-3 px-4">Corrientes 1770</td><td class="py-3 px-4">Lunes a Viernes: 7-13.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            },
+            "Kinesiología y Rehabilitación": {
+                isService: true,
+                content: `
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-bold section-title mb-2">FISIOKINESIOTERAPIA, GIMNASIO DE REHABILITACIÓN Y ACTIVIDAD FÍSICA CONTROLADA</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li><strong>Sede Recoleta COT (San Martín 3169):</strong> Lunes a Viernes de 8 a 19 hs.</li>
+                                <li><strong>Sede Esperanza (Crespo 1844):</strong> Lunes a Viernes de 8 a 16 hs.</li>
+                                <li><strong>Sede Santo Tomé (Alte. Brown 2077):</strong> Lunes a Viernes de 8 a 19 hs.</li>
+                                <li><strong>Sede General Paz II (General Paz 5239):</strong> Lunes a Viernes de 8 a 12 hs.</li>
+                                <li><strong>Sede Esp. Pediátricas (Belgrano 3033):</strong> Mandola Sofía - Martes, Jueves y Viernes de 14 a 15 hs.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold section-title mb-2">TERAPIA OCUPACIONAL</h3>
+                             <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li><strong>Sede Esp. Pediátricas (Belgrano 3033):</strong> Cobelli Lucía - Lunes de 8 a 12 hs.</li>
+                                <li><strong>Sede Recoleta COT (San Martín 3169):</strong> Giuseppucci Julia - Martes y Jueves de 8 a 12 hs / Azagra María - Miércoles y Viernes de 16 a 20 hs.</li>
+                                <li><strong>Sede San Justo (San Martín 2847):</strong> Monzón Marianela: Lunes 10 hs a 13 hs - Martes a Viernes 14 hs a 18 hs / Racca Andrea: Lunes 16 hs a 18 hs - Martes, Miércoles y Viernes 08 hs a 12 hs.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+        };
+
+        // --- DOM Elements ---
+        const tabsContainer = document.getElementById('tabs-container');
+        const contentContainer = document.getElementById('content-container');
+        const searchInput = document.getElementById('search-input');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const searchResultsDiv = document.getElementById('search-results');
+        const noResultsMessage = document.getElementById('no-results-message');
+        const tabsWrapper = document.getElementById('tabs-container-wrapper');
+
+        // --- Functions ---
+
+        /**
+         * Renders the content for the selected category (Sede/Service).
+         * @param {string} categoryKey - The key for the category in professionalData.
+         */
+        function renderContent(categoryKey) {
+            const categoryData = professionalData[categoryKey];
+            contentContainer.innerHTML = ''; // Clear previous content
+
+            if (categoryData.isService) {
+                // Render custom HTML content for services like Laboratorio
+                contentContainer.innerHTML = categoryData.content;
+            } else {
+                // Render specialties and professionals for a Sede
+                let contentHTML = '';
+
+                // Display Sede info if available
+                if (categoryData.info) {
+                    contentHTML += '<div class="mb-6 p-4 info-box rounded-r-lg">';
+                    contentHTML += `<h3 class="text-2xl font-bold section-title mb-2">${categoryKey}</h3>`;
+                    contentHTML += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 info-box-text">';
+                    for (const [key, value] of Object.entries(categoryData.info)) {
+                         if(value) contentHTML += `<div><strong>${key}:</strong> ${value}</div>`;
+                    }
+                    contentHTML += '</div></div>';
+                }
+
+                // Display specialties
+                contentHTML += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+                for (const specialty in categoryData.specialties) {
+                    contentHTML += `
+                        <div class="specialty-card rounded-lg overflow-hidden border border-gray-300 shadow-sm">
+                            <h4 class="specialty-title text-lg font-semibold p-3">${specialty}</h4>
+                            <ul class="p-3 space-y-2 text-gray-600">
+                                ${categoryData.specialties[specialty].map(prof => `<li>${prof}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                contentHTML += '</div>';
+                contentContainer.innerHTML = contentHTML;
+            }
+        }
+
+        /**
+         * Handles the global search across all data.
+         */
+        function handleGlobalSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            
+            if (query.length < 3) {
+                searchResultsContainer.style.display = 'none';
+                noResultsMessage.style.display = 'none';
+                tabsWrapper.style.display = 'block';
+                contentContainer.style.display = 'block';
+                // Re-render the active tab content if search is cleared
+                if(query.length === 0) {
+                    const activeTab = document.querySelector('.tab-button.active');
+                    if (activeTab) {
+                        renderContent(activeTab.dataset.category);
+                    }
+                }
+                return;
+            }
+
+            const results = [];
+            for (const sede in professionalData) {
+                const data = professionalData[sede];
+                if (!data.isService && data.specialties) {
+                    for (const specialty in data.specialties) {
+                        data.specialties[specialty].forEach(prof => {
+                            if (prof.toLowerCase().includes(query)) {
+                                results.push({ name: prof, specialty, sede });
+                            }
+                        });
+                    }
+                }
+            }
+
+            tabsWrapper.style.display = 'none';
+            contentContainer.style.display = 'none';
+
+            if (results.length > 0) {
+                searchResultsContainer.style.display = 'block';
+                noResultsMessage.style.display = 'none';
+                let resultsHTML = '';
+                results.forEach(res => {
+                    resultsHTML += `
+                        <div class="result-card bg-white p-4 rounded-lg shadow-sm">
+                            <p class="font-bold text-lg text-gray-800">${res.name}</p>
+                            <p class="text-gray-600">${res.specialty} - <span class="font-medium text-gray-700">${res.sede}</span></p>
+                        </div>
+                    `;
+                });
+                searchResultsDiv.innerHTML = resultsHTML;
+            } else {
+                searchResultsContainer.style.display = 'none';
+                noResultsMessage.style.display = 'block';
+            }
+        }
+
+        /**
+         * Creates the navigation tabs dynamically.
+         */
+        function createTabs() {
+            Object.keys(professionalData).forEach((category, index) => {
+                const button = document.createElement('button');
+                button.textContent = category;
+                button.className = 'tab-button px-3 py-2 text-sm sm:px-4 sm:py-2 sm:text-base font-medium text-gray-600 bg-white border-b-2 border-transparent rounded-t-lg hover:bg-gray-100 hover:text-gray-800 transition mr-2 mb-2';
+                button.dataset.category = category;
+
+                if (professionalData[category].isService) {
+                    button.classList.add('service-tab');
+                }
+
+                if (index === 0) {
+                    button.classList.add('active');
+                }
+
+                button.addEventListener('click', () => {
+                    searchInput.value = ''; // Clear search on tab click
+                    handleGlobalSearch(); // Hide search results
+                    
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderContent(category);
+                });
+
+                tabsContainer.appendChild(button);
+            });
+        }
+
+        // --- Event Listeners ---
+        searchInput.addEventListener('input', handleGlobalSearch);
+
+        // --- Initial Load ---
+        createTabs();
+        renderContent(Object.keys(professionalData)[0]); // Render the first tab content initially
+
+    </script>
+
+</body>
+</html>
